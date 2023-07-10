@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.codepresso.codepressoblog.repository.ExampleRepository">
+    <select id="getExampleList" resultType="com.codepresso.codepressoblog.model.ExampleResVO">
+        SELECT *
+        FROM example
+        <where>
+            <if test='!useYn.equals("ALL") and useYn != null'>
+                AND useYn = #{useYn}
+            </if>
+        </where>
+    </select>
+
+    <select id="getExampleDetail" resultType="com.codepresso.codepressoblog.model.ExampleResVO">
+        SELECt *
+        FROM example
+        WHERE id = #{id}
+    </select>
+
+    <select id="getExampleExtraContents" parameterType="com.codepresso.codepressoblog.model.ExampleExtraContentReqVO"
+            resultType="com.codepresso.codepressoblog.model.ExampleExtraContentResVO"> -- parameterType="java.util.List"
+        SELECT *
+        FROM extra_content;
+        WHERE useYn = 'Y'
+            AND types IN
+        <foreach collection="postRequestDtoList" item="id" separator="," open="(" close=")">
+            #{title}
+        </foreach>;
+    </select>
+
+    <insert id="insertExample" useGeneratedKeys="true" keyProperty="id" parameterType="com.codepresso.codepressoblog.model.ExampleSearchReqVO">
+        INSERT INTO example (col1, col2)
+        VALUES (#{id}, #{title})
+        ON DUPLICATE KEY UPDATE updater = 'biglol';
+    </insert>
+
+    <insert id="insertExampleForEach" parameterType="com.codepresso.codepressoblog.model.ExampleResVO">
+        INSERT INTO example (col1, col2
+                             <if test='type1 != null and !type1.equals("ALL")'>
+                                , col3
+                             </if>
+                             )
+        VALUES
+            <foreach collection="typesList" item="item" index="index" separator=",">
+                (#{item.id}, #{id}
+                <if test='type1 != null and !type1.equals("ALL")'>
+                    , #{type}
+                </if>
+                )
+            </foreach>
+    </insert>
+</mapper>
